@@ -13,7 +13,6 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
-import com.indemnity83.irontank.item.ItemTankChanger;
 import com.indemnity83.irontank.reference.TankType;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -49,7 +48,7 @@ public abstract class EntityMinecartTankAbstract extends EntityCartTank {
                 if (EntityMinecartTankAbstract.class.isAssignableFrom(clazz)) {
                     Class<? extends EntityMinecartTankAbstract> cartClass = (Class<? extends EntityMinecartTankAbstract>) clazz;
                     TankType type = ((EntityMinecartTankAbstract) cartClass.getConstructor(World.class)
-                        .newInstance((World) null)).type();
+                        .newInstance((World) null)).tankType();
                     String rawname = IronTankMinecarts.tankTypeName(type);
                     EntityRegistry.registerModEntity(
                         cartClass,
@@ -68,7 +67,7 @@ public abstract class EntityMinecartTankAbstract extends EntityCartTank {
     }
 
     public ItemStack getCartItem() {
-        Item minecart = IronTankMinecarts.carts.get(type());
+        Item minecart = IronTankMinecarts.carts.get(tankType());
         return new ItemStack(minecart != null ? minecart : Items.minecart);
     }
 
@@ -79,38 +78,6 @@ public abstract class EntityMinecartTankAbstract extends EntityCartTank {
                 .newInstance(world, x, y, z);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public abstract TankType type();
-
-    @Override
-    public boolean doInteract(EntityPlayer player) {
-        ItemStack stack = player.getCurrentEquippedItem();
-        if (stack != null && stack.getItem() instanceof ItemTankChanger changer) {
-            if (changer.type.canUpgrade(type())) {
-                if (!worldObj.isRemote) {
-                    TankType newType = changer.type.target;
-                    NBTTagCompound nbt = new NBTTagCompound();
-                    writeToNBT(nbt);
-                    setDead();
-                    try {
-                        EntityMinecartTankAbstract minecart = map.get(newType)
-                            .getConstructor(World.class)
-                            .newInstance(worldObj);
-                        minecart.readFromNBT(nbt);
-                        worldObj.spawnEntityInWorld(minecart);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (!player.capabilities.isCreativeMode && --stack.stackSize <= 0) {
-                    player.setCurrentItemOrArmor(0, null);
-                }
-            }
-            return true;
-        } else {
-            return super.doInteract(player);
         }
     }
 }
