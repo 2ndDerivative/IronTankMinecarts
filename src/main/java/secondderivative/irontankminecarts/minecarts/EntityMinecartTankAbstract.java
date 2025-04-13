@@ -23,7 +23,7 @@ import secondderivative.irontankminecarts.IronTankMinecarts;
 
 public abstract class EntityMinecartTankAbstract extends EntityCartTank {
 
-    private static final Map<TankType, Class<? extends EntityMinecartTankAbstract>> map = new HashMap<TankType, Class<? extends EntityMinecartTankAbstract>>();
+    public static final Map<TankType, Class<? extends EntityMinecartTankAbstract>> map = new HashMap<TankType, Class<? extends EntityMinecartTankAbstract>>();
 
     public EntityMinecartTankAbstract(World world, TankType type) {
         super(world);
